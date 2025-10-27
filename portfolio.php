@@ -1,56 +1,69 @@
 <?php
 session_start();
+
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("Location: login.php");
     exit;
+}
+
+$host = "localhost";
+$db   = "portfolio_db";
+$user = "postgres";
+$pass = "1234567890";
+
+$error = '';
+$userData = [];
+
+try {
+    $pdo = new PDO("pgsql:host=$host;dbname=$db", $user, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $stmt = $pdo->prepare("SELECT username, full_name, email, phone, skills, education, bio FROM users WHERE id = :id");
+    $stmt->execute(["id" => $_SESSION["user_id"]]);
+    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$userData) {
+        throw new RuntimeException("Unable to load your resume details.");
+    }
+} catch (Exception $e) {
+    $error = $e->getMessage();
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My Portfolio</title>
+  <title>My Resume</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>My Portfolio</h1>
-    <p>Welcome to my personal portfolio showcasing my academic journey, skills, and experiences.</p>
+    <h1>Private Resume View</h1>
+    <p>Only visible to you while logged in.</p>
   </header>
 
   <div class="resume-container">
-    <h2 class="center-text">Juan Miguel G. Pimentel</h2>
-    <p class="center-text">3rd Year Computer Science Student</p>
-    <p class="center-text"> 23-07687@g.batstate-u.edu.ph |  +63 956 629 6434</p>
+    <?php if (!empty($error)): ?>
+      <div class="error"><?php echo htmlspecialchars($error); ?></div>
+    <?php else: ?>
+      <h2 class="center-text"><?php echo htmlspecialchars($userData['full_name']); ?></h2>
+      <p class="center-text"><?php echo htmlspecialchars($userData['bio']); ?></p>
+      <p class="center-text"><?php echo htmlspecialchars($userData['email']); ?> | <?php echo htmlspecialchars($userData['phone']); ?></p>
 
-    <hr>
+      <hr>
 
-    <h3>Academic History</h3>
-    <ul>
-      <li><b>Elementary:</b> Anne-Claire Montessori De Lipa (2011–2017)</li>
-      <li><b>Junior High:</b> Batangas College of Arts and Sciences, Inc. (2017–2021)</li>
-      <li><b>Senior High:</b> Batangas College of Arts and Sciences, Inc. (2021–2023)</li>
-      <li><b>College:</b> Batangas State University - Main II (2023–Present)</li>
-    </ul>
+      <h3>Skills</h3>
+      <p><?php echo nl2br(htmlspecialchars($userData['skills'])); ?></p>
 
-    <h3>Skills</h3>
-    <ul class="grid-list">
-      <li>CTF (Capture The Flag) Challenges</li>
-      <li>C++ Programming</li>
-      <li>SQL Database Management</li>
-      <li>Flutter Mobile Development</li>
-      <li>PC Hardware Repair & Troubleshooting</li>
-    </ul>
+      <h3>Education</h3>
+      <p><?php echo nl2br(htmlspecialchars($userData['education'])); ?></p>
 
-    <h3>Experience</h3>
-    <ul>
-      <li><b>PC Repair & Troubleshooting:</b> Diagnosed and resolved hardware/software issues, performed system maintenance, and upgraded components for clients and personal projects.</li>
-      <li><b>CTF Challenges:</b> Regularly participated in cybersecurity competitions, solving cryptography, forensics, and vulnerability analysis challenges.</li>
-    </ul>
-
-    <div class="center-text">
-      <a href="logout.php" class="logout-btn">Logout</a>
-    </div>
+      <div class="center-text">
+        <a href="dashboard.php" class="btn">Edit Resume</a>
+        <a href="public_resume.php?id=<?php echo urlencode($_SESSION['user_id']); ?>" class="btn secondary" target="_blank">Share Public Link</a>
+        <a href="logout.php" class="logout-btn">Logout</a>
+      </div>
+    <?php endif; ?>
   </div>
 </body>
 </html>
