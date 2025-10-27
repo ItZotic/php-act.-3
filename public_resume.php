@@ -35,48 +35,36 @@ if ($userId <= 0) {
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="page-shell">
-    <header class="site-header">
-      <div class="brand">Turquoise Portfolio</div>
-      <nav class="site-nav">
-        <a href="index.php">Home</a>
-        <a href="login.php">Login</a>
-      </nav>
-    </header>
+  <div class="public-resume">
+    <?php if ($error): ?>
+      <div class="error"><?php echo htmlspecialchars($error); ?></div>
+    <?php else: ?>
+      <header>
+        <h1><?php echo htmlspecialchars($userData['full_name']); ?></h1>
+        <p><?php echo htmlspecialchars($userData['bio']); ?></p>
+      </header>
 
-    <main>
-      <section class="card">
-        <?php if ($error): ?>
-          <div class="alert error"><?php echo htmlspecialchars($error); ?></div>
-        <?php else: ?>
-          <div class="resume-layout">
-            <div class="resume-header">
-              <h2><?php echo htmlspecialchars($userData['full_name']); ?></h2>
-              <p><?php echo htmlspecialchars($userData['bio']); ?></p>
-              <div class="resume-meta">
-                <span><?php echo htmlspecialchars($userData['email']); ?></span>
-                <span><?php echo htmlspecialchars($userData['phone']); ?></span>
-              </div>
-            </div>
-
-            <div class="resume-section">
-              <h3>Skills</h3>
-              <p><?php echo htmlspecialchars($userData['skills']); ?></p>
-            </div>
-
-            <div class="resume-section">
-              <h3>Education</h3>
-              <p><?php echo htmlspecialchars($userData['education']); ?></p>
-            </div>
-
-            <div class="resume-footer">
-              <p>Profile owned by <?php echo htmlspecialchars($userData['username']); ?>.</p>
-              <a class="btn outline" href="login.php">Login to edit your profile</a>
-            </div>
-          </div>
-        <?php endif; ?>
+      <section>
+        <h2>Contact Information</h2>
+        <p><strong>Email:</strong> <?php echo htmlspecialchars($userData['email']); ?></p>
+        <p><strong>Phone:</strong> <?php echo htmlspecialchars($userData['phone']); ?></p>
       </section>
-    </main>
+
+      <section>
+        <h2>Skills</h2>
+        <p><?php echo nl2br(htmlspecialchars($userData['skills'])); ?></p>
+      </section>
+
+      <section>
+        <h2>Education</h2>
+        <p><?php echo nl2br(htmlspecialchars($userData['education'])); ?></p>
+      </section>
+
+      <footer class="resume-footer">
+        <p>Profile owned by <?php echo htmlspecialchars($userData['username']); ?>.</p>
+        <a class="btn" href="login.php">Login to edit your profile</a>
+      </footer>
+    <?php endif; ?>
   </div>
 </body>
 </html>

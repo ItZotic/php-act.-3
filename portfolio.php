@@ -33,57 +33,37 @@ try {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Private Resume</title>
+  <title>My Resume</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="page-shell">
-    <header class="site-header">
-      <div class="brand">Turquoise Portfolio</div>
-      <nav class="site-nav">
-        <a href="index.php">Home</a>
-        <a href="dashboard.php">Dashboard</a>
-        <a href="public_resume.php?id=<?php echo urlencode($_SESSION['user_id']); ?>" target="_blank">Public View</a>
-        <a href="logout.php">Logout</a>
-      </nav>
-    </header>
+  <header>
+    <h1>Private Resume View</h1>
+    <p>Only visible to you while logged in.</p>
+  </header>
 
-    <main>
-      <section class="card">
-        <?php if (!empty($error)): ?>
-          <div class="alert error"><?php echo htmlspecialchars($error); ?></div>
-        <?php else: ?>
-          <div class="resume-layout">
-            <div class="resume-header">
-              <h2><?php echo htmlspecialchars($userData['full_name']); ?></h2>
-              <p><?php echo htmlspecialchars($userData['bio']); ?></p>
-              <div class="resume-meta">
-                <span><?php echo htmlspecialchars($userData['email']); ?></span>
-                <span><?php echo htmlspecialchars($userData['phone']); ?></span>
-              </div>
-            </div>
+  <div class="resume-container">
+    <?php if (!empty($error)): ?>
+      <div class="error"><?php echo htmlspecialchars($error); ?></div>
+    <?php else: ?>
+      <h2 class="center-text"><?php echo htmlspecialchars($userData['full_name']); ?></h2>
+      <p class="center-text"><?php echo htmlspecialchars($userData['bio']); ?></p>
+      <p class="center-text"><?php echo htmlspecialchars($userData['email']); ?> | <?php echo htmlspecialchars($userData['phone']); ?></p>
 
-            <div class="resume-section">
-              <h3>Skills</h3>
-              <p><?php echo htmlspecialchars($userData['skills']); ?></p>
-            </div>
+      <hr>
 
-            <div class="resume-section">
-              <h3>Education</h3>
-              <p><?php echo htmlspecialchars($userData['education']); ?></p>
-            </div>
+      <h3>Skills</h3>
+      <p><?php echo nl2br(htmlspecialchars($userData['skills'])); ?></p>
 
-            <div class="resume-footer">
-              <div class="actions centered">
-                <a href="dashboard.php" class="btn">Edit Resume</a>
-                <a href="public_resume.php?id=<?php echo urlencode($_SESSION['user_id']); ?>" class="btn outline" target="_blank">Share Public Link</a>
-                <a href="logout.php" class="btn ghost">Logout</a>
-              </div>
-            </div>
-          </div>
-        <?php endif; ?>
-      </section>
-    </main>
+      <h3>Education</h3>
+      <p><?php echo nl2br(htmlspecialchars($userData['education'])); ?></p>
+
+      <div class="center-text">
+        <a href="dashboard.php" class="btn">Edit Resume</a>
+        <a href="public_resume.php?id=<?php echo urlencode($_SESSION['user_id']); ?>" class="btn secondary" target="_blank">Share Public Link</a>
+        <a href="logout.php" class="logout-btn">Logout</a>
+      </div>
+    <?php endif; ?>
   </div>
 </body>
 </html>
