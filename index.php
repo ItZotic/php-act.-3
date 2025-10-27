@@ -17,7 +17,9 @@ session_start();
   <div class="home-container">
     <?php if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true): ?>
       <h2>Hello, <?php echo htmlspecialchars($_SESSION["username"]); ?></h2>
-      <a href="portfolio.php" class="btn">Go to Portfolio</a>
+      <a href="dashboard.php" class="btn">Go to Dashboard</a>
+      <a href="portfolio.php" class="btn secondary">View Resume</a>
+      <a href="public_resume.php?id=<?php echo urlencode($_SESSION['user_id']); ?>" class="btn secondary" target="_blank">Public Resume Link</a>
       <a href="logout.php" class="logout-btn">Logout</a>
     <?php else: ?>
       <h2>Access My Portfolio</h2>
