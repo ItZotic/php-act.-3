@@ -1,39 +1,37 @@
 <?php
-session_start();
-
-if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-    header("Location: login.php");
-    exit;
-}
-
 $host = "localhost";
 $db   = "portfolio_db";
 $user = "postgres";
 $pass = "1234567890";
 
+$userId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$userData = null;
 $error = '';
-$userData = [];
 
-try {
-    $pdo = new PDO("pgsql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+if ($userId <= 0) {
+    $error = 'Invalid resume link.';
+} else {
+    try {
+        $pdo = new PDO("pgsql:host=$host;dbname=$db", $user, $pass);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $stmt = $pdo->prepare("SELECT username, full_name, email, phone, skills, education, bio FROM users WHERE id = :id");
-    $stmt->execute(["id" => $_SESSION["user_id"]]);
-    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT username, full_name, email, phone, skills, education, bio FROM users WHERE id = :id");
+        $stmt->execute(['id' => $userId]);
+        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$userData) {
-        throw new RuntimeException("Unable to load your resume details.");
+        if (!$userData) {
+            $error = 'The requested resume could not be found.';
+        }
+    } catch (PDOException $e) {
+        $error = 'Unable to load resume: ' . $e->getMessage();
     }
-} catch (Exception $e) {
-    $error = $e->getMessage();
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Private Resume</title>
+  <title>Public Resume</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -42,15 +40,13 @@ try {
       <div class="brand">Turquoise Portfolio</div>
       <nav class="site-nav">
         <a href="index.php">Home</a>
-        <a href="dashboard.php">Dashboard</a>
-        <a href="public_resume.php?id=<?php echo urlencode($_SESSION['user_id']); ?>" target="_blank">Public View</a>
-        <a href="logout.php">Logout</a>
+        <a href="login.php">Login</a>
       </nav>
     </header>
 
     <main>
       <section class="card">
-        <?php if (!empty($error)): ?>
+        <?php if ($error): ?>
           <div class="alert error"><?php echo htmlspecialchars($error); ?></div>
         <?php else: ?>
           <div class="resume-layout">
@@ -74,11 +70,8 @@ try {
             </div>
 
             <div class="resume-footer">
-              <div class="actions centered">
-                <a href="dashboard.php" class="btn">Edit Resume</a>
-                <a href="public_resume.php?id=<?php echo urlencode($_SESSION['user_id']); ?>" class="btn outline" target="_blank">Share Public Link</a>
-                <a href="logout.php" class="btn ghost">Logout</a>
-              </div>
+              <p>Profile owned by <?php echo htmlspecialchars($userData['username']); ?>.</p>
+              <a class="btn outline" href="login.php">Login to edit your profile</a>
             </div>
           </div>
         <?php endif; ?>
